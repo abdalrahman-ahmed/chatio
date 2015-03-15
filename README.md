@@ -4,14 +4,14 @@ Chat.IO app using node.js and socket.io
 ![](https://raw.githubusercontent.com/abdalrahman-ahmed/chatio/master/Screenshot.png)
 
 ## Libraries used
-<ol>
+<il>
   <li>node.js / npm</li>
   <li>socket.io</li>
   <li>express</li>
   <li>node-uuid</li>
   <li>underscore</li>
   <li>ejs</li>
-</ol>
+</il>
 
 # Functionality
 <ol>
