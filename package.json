@@ -1,0 +1,43 @@
+{
+  "name": "chatio",
+  "version": "0.1.0",
+  "description":"Real-time apps made cross-browser & easy with a WebSocket-like API",
+  "homepage": "https://chatio-alcrazy.c9.io/",
+  "keywords": [
+    "websocket",
+    "socket",
+    "realtime",
+    "socket.io"
+  ],
+  "author": {
+    "name": "Abdalrahman Ahmed",
+    "email": "abdooalcrazy@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Abdalrahman Ahmed",
+      "email": "abdooalcrazy@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abdalrahman-ahmed/chatio.git"
+  },
+  "main": "index",
+  "dependencies": {
+    "ejs": "~0.8.5",
+    "express": "~3.4.8",
+    "node-uuid": "~1.4.1",
+    "nodemon": "~1.0.13",
+    "socket.io": "~0.9.16",
+    "shrinkwrap": "~0.0.3",
+    "underscore": "~1.5.2",
+    "bower": "~1.2.8"
+  },
+  "readmeFilename": "README.md",
+  "devDependencies": {},
+  "scripts": {
+    "postinstall": "./node_modules/bower/bin/bower install",
+    "start": "nodejs index.js"
+  }
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>مرحباً - Chat.IO</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="css/flags.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="components/jquery/dist/jquery.js"></script>
+  <script src="components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/client.js"></script>
+</head>
+<body>
+  <div class="main col-md-6 col-md-offset-3">
+    <div class="alert alert-danger" id="errors"></div>
+    <div id="login-screen">
+      <p class="lead">تطبيق محادثة بإستخدام Node.JS و Socket.io</p>
+      <p>من فضلك ادخل اسمك أدناه وانقر على "الأنضمام" او استخدم مفتاح "Enter".</p>
+        <form class="form-inline" id="nameForm">
+          <div class="form-group">
+            <input type="text" class="form-control input-lg" placeholder="أسمك" id="name">
+          </div>
+          <input type="submit" name="join" id="join" value="إنضمام" class="btn btn-primary btn-lg">
+        </form>
+      </div>
+    </div>
+
+    <div class="row" id="main-chat-screen">
+       <div class="col-md-2">
+        <ul class="list-unstyled" id="updates"></ul>
+      </div>
+      <div class="col-md-6 list-group">
+        <div id="conversation" class="list-group-item">
+          <ul id="msgs" class="list-unstyled"></ul>
+        </div>
+        <form id="chatForm" class="form-inline list-group-item">
+          <div class="form-group">
+            <input type="text" class="form-control input-lg" placeholder="رسالتك" id="msg">
+          </div>
+          <input type="submit" name="send" id="send" value="إرسال" class="btn btn-success btn-lg">
+          <!--<input type="button" name="start_button" id="start_button" value="تسجيل" onclick="startButton(event)" class="btn btn-info btn-lg">-->
+          <div class="btn-group">
+            <button type="button" class="btn btn-lg btn-info dropdown-toggle" data-toggle="dropdown" >
+              اعدادات <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" name="createRoom" data-toggle="modal" data-target="#roomModal">أنشاء غرفة</a></li>
+              <li><a href="#" name="leave" id="leave">مُغادرة الغرفة الحاليه</a></li>
+              <!--<li><a href="#" name="disconnect" id="disconnect">Disconnect from chat</a></li>-->
+            </ul>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-3">
+        <ul id="rooms" class="list-group"></ul>
+        <ul id="people" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal start -->
+  <div class="modal fade" id="roomModal" tabindex="-1" role="dialog" aria-labelledby="createRoomLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="createRoomLabel">أنشاء غُرفة</h4>
+        </div>
+        <div class="modal-body">
+          يُمكن أنشاء غرفة محادثه هنا. يجد الاشماء ان تكون فريده من نوعها.
+          <form class="form-inline" id="createRoomForm"><input type="text" class="form-control input-lg"  placeholder="أسم الغرفة" id="createRoomName"></form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">إغلاق</button>
+          <button data-dismiss="modal" id="createRoomBtn" class="btn btn-success btn-lg">إنشاء الغرفة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal end -->
+</body>
+</html>

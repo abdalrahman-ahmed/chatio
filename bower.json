@@ -1,0 +1,12 @@
+{
+  "name": "chatio",
+  "version": "0.1.0",
+  "dependencies": {
+    "bootstrap": "latest",
+    "jquery": "latest",
+    "typeahead.js": "latest",
+    "font-awesome": "latest"
+  },
+  "directory": "components",
+  "homepage": "https://github.com/abdalrahman-ahmed/chatio"
+}

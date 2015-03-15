@@ -1,0 +1,100 @@
+body, #main-chat-screen {
+  margin: 0;
+}
+#login-screen, #main-chat-screen {
+  padding-top: 10px;
+}
+.main {
+  padding-top: 10px;
+  text-align: center;
+}
+#conversation {
+  font-size: 18px;
+  margin: 0px;
+  height: 300px;
+  overflow: auto;
+}
+.final {
+  font-color: #000;
+}
+.interim {
+  font-color: #f00;
+}
+.typing {
+  text-align: right;
+}
+form#chatForm > * {
+    float: right;
+    margin: 4px;
+}
+.list-group-item > span.badge {
+    float: left;
+}
+li.list-group-item.active {
+    text-align: right;
+}
+li.list-group-item span {
+    float: right;
+}
+#rooms li.list-group-item {
+  text-align: right;
+}
+#login-screen,
+#errors {
+    direction: rtl;
+}
+.modal-content {
+    text-align: right;
+    direction: rtl;
+}
+
+button.close {
+    float: left;
+}
+.modal-footer button {
+    float: left;
+}
+#rooms li.list-group-item[id] {
+  text-align: left;
+}
+#rooms li.list-group-item[id] {
+    text-align: left;
+}
+ul#updates {
+    text-align: right;
+      float: right;
+}
+ul#updates li[id] span small i {
+    float: right;
+    margin: 2px;
+}
+ul#updates li[id] span small {
+    float: right;
+    direction: rtl;
+}
+form#chatForm {
+  display: inline-block;
+  width:100%;
+}
+ul#msgs li strong {
+  float: right;
+}
+ul#msgs li {
+  text-align: right;
+}
+ul.dropdown-menu {
+  text-align: right;
+}
+ul#people li.list-group-item.active, 
+ul#rooms li.list-group-item.active {
+    color: #333;   
+    background-color: transparent;   
+    border-color: #ddd;
+}
+
+ul#people li.list-group-item.active > .badge,
+ul#rooms li.list-group-item.active > .badge {
+    background-color: #eee;
+    border: 1px solid #d5d5d5;
+    color: #333;
+}
