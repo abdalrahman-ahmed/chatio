@@ -38,6 +38,6 @@
   "devDependencies": {},
   "scripts": {
     "postinstall": "./node_modules/bower/bin/bower install",
-    "start": "nodejs index.js"
+    "start": "nodejs ./index.js"
   }
 }

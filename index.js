@@ -1,7 +1,7 @@
 var express = require('express')
 , app = express()
 , server = require('http').createServer(app)
-, io = require("socket.io").listen(server)
+, io = require("socket.io").listen(server,{log:false})
 , uuid = require('node-uuid')
 , Room = require('./room.js')
 , _ = require('underscore')._;
@@ -9,7 +9,8 @@ var express = require('express')
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8080);
   	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
-	app.use(express.bodyParser());
+	app.use(express.json());
+	app.use(express.urlencoded());
 	app.use(express.methodOverride());
 	app.use(express.static(__dirname + '/public'));
 	app.use('/components', express.static(__dirname + '/components'));

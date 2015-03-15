@@ -2,10 +2,10 @@
   "name": "chatio",
   "version": "0.1.0",
   "dependencies": {
-    "bootstrap": "latest",
-    "jquery": "latest",
-    "typeahead.js": "latest",
-    "font-awesome": "latest"
+    "bootstrap": "3.3.2",
+    "jquery": "1.11.2",
+    "typeahead.js": "0.10.5",
+    "font-awesome": "4.3.0"
   },
   "directory": "components",
   "homepage": "https://github.com/abdalrahman-ahmed/chatio"
