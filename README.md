@@ -12,7 +12,7 @@ Chat.IO app using node.js and socket.io
 </ul>
 
 # Functionality
-<ul>
+<ol>
   <li>People are able to join the chat server after entering their names</li>
   <li>Usernames are unique - if a username is taken, a new suggestion is generated</li>
   <li>User agent and geo location are both detected</li>
@@ -21,9 +21,9 @@ Chat.IO app using node.js and socket.io
   <li>Whisper messages are private messages sent between two users</li>
   <li>With a WebSpeech enabled browsers, users can record their messages</li>
   <li>Users can leave a room and/or disconnect from the server anytime</li>
-  <li><strong>New:</strong> People joining the room will see the past 10 messages (chat history).</li>
-  <li><strong>New:</strong> People will see an 'is typing' message when someone is typing a message.</li>
-</ul>
+  <li>People joining the room will see the past 10 messages (chat history).</li>
+  <li>People will see an 'is typing' message when someone is typing a message.</li>
+</ol>
 
 ## Setup and configuration
 
