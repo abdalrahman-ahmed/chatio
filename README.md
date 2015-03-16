@@ -27,7 +27,7 @@ Chat.IO app using node.js and socket.io
 
 ## Setup and configuration
 
-Make sure that you update <strong>server.js</strong>:
+Make sure that you update <strong>index.js</strong>:
 <pre>server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });</pre>
