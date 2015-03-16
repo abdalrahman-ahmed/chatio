@@ -32,19 +32,19 @@ Make sure that you update <strong>server.js</strong>:
   console.log('Express server listening on port ' + app.get('port'));
 });</pre>
 and add your own IP address/hostname if required, i.e.:
-<pre>server.listen(app.get('port'), "192.168.56.102", function(){
+<pre>server.listen(app.get('port'), "192.168.1.6", function(){
   console.log('Express server listening on port ' + app.get('port'));
 });</pre>
 
 (the port is defined in the <code>app.set('port', process.env.PORT || 3000);</code> section.)
 
 Please also update <strong>public/js/client.js</strong>:
-<pre>var socket = io.connect("192.168.56.102:3000");</pre>
+<pre>var socket = io.connect("192.168.1.6:3000");</pre>
 with the right IP address/hostname.
 
 To install <code>npm install && bower install</code> and to launch run <code>npm start</code>.
 
-### Whisper
+### Private Message
 
 To send a 'private' message, use the following format in the chat message input box:
 <code>w:USERNAME:MESSAGE</code> (where 'USERNAME' is the exact name of the user who you wish to whisper to (case-sensitive). For your convenience you can use the whipser link next to the person's username on the left hand side.)
