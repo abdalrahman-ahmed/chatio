@@ -8,7 +8,7 @@ var express = require('express')
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8080);
-  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
+  	app.set('ipaddr', process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 	app.use(express.json());
 	app.use(express.urlencoded());
 	app.use(express.methodOverride());
@@ -177,6 +177,9 @@ function purge(s, action) {
 io.sockets.on("connection", function (socket) {
 
 	socket.on("joinserver", function(name, device) {
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20){
+	      return;
+	    }
 		var exists = false;
 		var ownerRoomID = inRoomID = null;
 
@@ -212,9 +215,11 @@ io.sockets.on("connection", function (socket) {
         });
 
 	socket.on("countryUpdate", function(data) { //we know which country the user is from
-		country = data.country.toLowerCase();
-		people[socket.id].country = country;
-		io.sockets.emit("update-people", {people: people, count: sizePeople});
+		if(typeof(data) === 'object' && 'country' in data && data.country !== null || data.country.length !== 0){
+			country = data.country.toLowerCase();
+			people[socket.id].country = country;
+			io.sockets.emit("update-people", {people: people, count: sizePeople});
+		}
 	});
 
 	socket.on("typing", function(data) {
@@ -223,6 +228,9 @@ io.sockets.on("connection", function (socket) {
 	});
 	
 	socket.on("send", function(msg) {
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(msg) || msg.length === 0 && !/^[w]:.*:/.test(msg)){
+	      return;
+	    }
 		//process.exit(1);
 		var re = /^[w]:.*:/;
 		var whisper = re.test(msg);
@@ -274,7 +282,10 @@ io.sockets.on("connection", function (socket) {
 
 	//Room functions
 	socket.on("createRoom", function(name) {
-		if (people[socket.id].inroom) {
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20){
+	      return;
+	    }
+		if (people[socket.id].inroom && people[socket.id].inroom !== null && people[socket.id].inroom !== '') {
 			socket.emit("update", "انتَ داخل غرفه. من فضلك اتركها لتتمكن من إنشاء واحده جديدة");
 		} else if (!people[socket.id].owns) {
 			var id = uuid.v4();

@@ -1,20 +1,18 @@
 # chatio
 Chat.IO app using node.js and socket.io
 
-![](https://raw.githubusercontent.com/abdalrahman-ahmed/chatio/master/Screenshot.png)
-
 ## Libraries used
-<il>
+<ul>
   <li>node.js / npm</li>
   <li>socket.io</li>
   <li>express</li>
   <li>node-uuid</li>
   <li>underscore</li>
   <li>ejs</li>
-</il>
+</ul>
 
 # Functionality
-<ol>
+<ul>
   <li>People are able to join the chat server after entering their names</li>
   <li>Usernames are unique - if a username is taken, a new suggestion is generated</li>
   <li>User agent and geo location are both detected</li>
@@ -23,13 +21,13 @@ Chat.IO app using node.js and socket.io
   <li>Whisper messages are private messages sent between two users</li>
   <li>With a WebSpeech enabled browsers, users can record their messages</li>
   <li>Users can leave a room and/or disconnect from the server anytime</li>
-  <li>People joining the room will see the past 10 messages (chat history).</li>
-  <li>People will see an 'is typing' message when someone is typing a message.</li>
-</ol>
+  <li><strong>New:</strong> People joining the room will see the past 10 messages (chat history).</li>
+  <li><strong>New:</strong> People will see an 'is typing' message when someone is typing a message.</li>
+</ul>
 
 ## Setup and configuration
 
-Make sure that you update <strong>index.js</strong>:
+Make sure that you update <strong>server.js</strong>:
 <pre>server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });</pre>
@@ -46,7 +44,7 @@ with the right IP address/hostname.
 
 To install <code>npm install && bower install</code> and to launch run <code>npm start</code>.
 
-### Private Message
+### Whisper
 
 To send a 'private' message, use the following format in the chat message input box:
 <code>w:USERNAME:MESSAGE</code> (where 'USERNAME' is the exact name of the user who you wish to whisper to (case-sensitive). For your convenience you can use the whipser link next to the person's username on the left hand side.)
