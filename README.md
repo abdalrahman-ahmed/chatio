@@ -47,3 +47,5 @@ Now Visit [Chat.IO DEMO](https://chatio-alcrazy-2.c9.io/)
 | Version(s)            | Download(s)                  |
 | --------------------- | ---------------------------- |
 | chat.io.v0.1.0.tar.gz | [Download](http://goo.gl/Ih6kUr)         |
+| --------------------- | ---------------------------- |
+| chat.io.v0.1.1.tar.gz | [Download](http://goo.gl/QJKYqM)         |
