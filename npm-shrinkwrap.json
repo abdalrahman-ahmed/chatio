@@ -1,6 +1,6 @@
 {
   "name": "chatio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description":"Real-time apps made cross-browser & easy with a WebSocket-like API",
   "homepage": "https://chatio-alcrazy.c9.io/",
   "keywords": [
