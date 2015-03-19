@@ -1,0 +1,54 @@
+div#tabs {
+  width: 100%;
+  height: 100%;
+  margin: 2px 0 0 0;
+  overflow: hidden;
+}
+.tabs {
+    background-image:url(../images/tabs.gif ) !important;
+}
+.tabss {
+    background-image:url(../images/tabss.gif ) !important;
+}
+.list {
+    padding-left: 16px;
+    padding-bottom: 10px;
+}
+.list li{
+    list-style: square;
+    padding: 2px;
+}
+
+pre {
+    color: #000;
+    font-size: 11px; 
+}
+.x-tab-tabmenu-right {
+    background: #157fcc url('../images/default-scroll-bottom.png') no-repeat 0 0;
+    width:18px;
+    height: 31px;
+    cursor:pointer;
+    zoom: 1;
+    z-index: 6;
+    float: right;
+    background-position: -8px 6px;
+    filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+    opacity: 0.5;
+}
+.x-tab-tabmenu-over {
+    opacity: 0.5;
+}
+.x-tab-tabmenu-disabled {
+    opacity:.5;
+    -moz-opacity:.5;
+    filter:alpha(opacity=50);
+    cursor:default;
+}
+.status {
+    color: #5cb85c;
+    border-radius: 100%;
+    text-align: center;
+}
+.status.off {
+    color: #d9534f;
+}

@@ -1,102 +1,3 @@
-function htmlentities(string, quote_style, charset, double_encode) {
-  //  discuss at: http://phpjs.org/functions/htmlentities/
-  // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  //  revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  //  revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  // improved by: nobbler
-  // improved by: Jack
-  // improved by: Rafał Kukawski (http://blog.kukawski.pl)
-  // improved by: Dj (http://phpjs.org/functions/htmlentities:425#comment_134018)
-  // bugfixed by: Onno Marsman
-  // bugfixed by: Brett Zamir (http://brett-zamir.me)
-  //    input by: Ratheous
-  //  depends on: get_html_translation_table
-  //   example 1: htmlentities('Kevin & van Zonneveld');
-  //   returns 1: 'Kevin &amp; van Zonneveld'
-  //   example 2: htmlentities("foo'bar","ENT_QUOTES");
-  //   returns 2: 'foo&#039;bar'
-
-  var hash_map = this.get_html_translation_table('HTML_ENTITIES', quote_style),
-    symbol = '';
-  string = string == null ? '' : string + '';
-
-  if (!hash_map) {
-    return false;
-  }
-
-  if (quote_style && quote_style === 'ENT_QUOTES') {
-    hash_map["'"] = '&#039;';
-  }
-
-  if ( !! double_encode || double_encode == null) {
-    for (symbol in hash_map) {
-      if (hash_map.hasOwnProperty(symbol)) {
-        string = string.split(symbol)
-          .join(hash_map[symbol]);
-      }
-    }
-  } else {
-    string = string.replace(/([\s\S]*?)(&(?:#\d+|#x[\da-f]+|[a-zA-Z][\da-z]*);|$)/g, function(ignore, text, entity) {
-      for (symbol in hash_map) {
-        if (hash_map.hasOwnProperty(symbol)) {
-          text = text.split(symbol)
-            .join(hash_map[symbol]);
-        }
-      }
-
-      return text + entity;
-    });
-  }
-
-  return string;
-}
-
-function htmlspecialchars(string, quote_style, charset, double_encode) {
-  var optTemp = 0,
-    i = 0,
-    noquotes = false;
-  if (typeof quote_style === 'undefined' || quote_style === null) {
-    quote_style = 2;
-  }
-  string = string.toString();
-  if (double_encode !== false) { // Put this first to avoid double-encoding
-    string = string.replace(/&/g, '&amp;');
-  }
-  string = string.replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  var OPTS = {
-    'ENT_NOQUOTES': 0,
-    'ENT_HTML_QUOTE_SINGLE': 1,
-    'ENT_HTML_QUOTE_DOUBLE': 2,
-    'ENT_COMPAT': 2,
-    'ENT_QUOTES': 3,
-    'ENT_IGNORE': 4
-  };
-  if (quote_style === 0) {
-    noquotes = true;
-  }
-  if (typeof quote_style !== 'number') { // Allow for a single string or an array of string flags
-    quote_style = [].concat(quote_style);
-    for (i = 0; i < quote_style.length; i++) {
-      // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
-      if (OPTS[quote_style[i]] === 0) {
-        noquotes = true;
-      } else if (OPTS[quote_style[i]]) {
-        optTemp = optTemp | OPTS[quote_style[i]];
-      }
-    }
-    quote_style = optTemp;
-  }
-  if (quote_style & OPTS.ENT_HTML_QUOTE_SINGLE) {
-    string = string.replace(/'/g, '&#039;');
-  }
-  if (!noquotes) {
-    string = string.replace(/"/g, '&quot;');
-  }
-
-  return string;
-}
 /* HTML5 magic
 - GeoLocation
 - WebSpeech
@@ -106,6 +7,7 @@ function htmlspecialchars(string, quote_style, charset, double_encode) {
 var final_transcript = '';
 var recognizing = false;
 var last10messages = []; //to be populated later
+var username = '';
 
 if (!('webkitSpeechRecognition' in window)) {
   console.log("webkitSpeechRecognition is not available");
@@ -162,11 +64,15 @@ function toggleChatWindow() {
   $("#main-chat-screen").toggle();
 }
 
+window.myRoomName = '';
+
 $(document).ready(function() {
+
+  $('head').append('<link rel="stylesheet" type="text/css" href="extjs/css/ext-all-neptune-debug.css"><script type="text/javascript" src="extjs/js/ext-all.js"></script><script type="text/javascript" src="extjs/js/ext-theme-neptune.js"></script><link rel="stylesheet" type="text/css" href="extjs/css/tabs.css"><script type="text/javascript" src="extjs/js/TabScrollerMenu.js"></script><script type="text/javascript" src="extjs/js/TabCloseMenu.js"></script><script type="text/javascript" src="extjs/js/tab-scroller-menu.js"></script>');
+
   //setup "global" variables first
   var socket = io.connect(location.protocol+"//"+location.hostname+"/");
   var myRoomID = null;
-
   $("form").submit(function(event) {
     event.preventDefault();
   });
@@ -186,26 +92,29 @@ $(document).ready(function() {
     $("#join").attr('disabled', 'disabled');
   }
 
+
   //enter screen
-  $("#nameForm").submit(function() {
-    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test($("#name").val()) || $("#name").val().length === 0 || $("#name").val().length > 20){
+  $("#nameForm").submit(function(){
+    var name = ($("#name").val().trim());
+    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 15){
       alert('error: Please Enter a valid name');
       return;
     }
-    var name = htmlspecialchars($("#name").val());
-    var device = "desktop";
-    if (navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i)) {
-      device = "mobile";
-    }
-    if (name === "" || name.length < 2) {
+    name = htmlspecialchars(name);
+    var device = navigator.userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i) ? "mobile" : "laptop";
+    if(name === "" || name.length < 2){
       $("#errors").empty();
       $("#errors").append("Please enter a name");
       $("#errors").show();
-    } else {
-      socket.emit("joinserver", name, device);
-      toggleNameForm();
-      toggleChatWindow();
-      $("#msg").focus();
+    }else{
+        username = name;
+        $(".welcome-msg[name]").attr("name",username);
+        socket.emit("joinserver", name, device);
+        toggleNameForm();
+        toggleChatWindow();
+        addTab('check','<ul></ul>',false,'fa fa-circle status');
+        addTab('الحاله','<ul id="msgs" class="list-unstyled"></ul>',false,'fa fa-circle status');
+        tabs.remove(0);
     }
   });
 
@@ -222,14 +131,32 @@ $(document).ready(function() {
 
   //main chat screen
   $("#chatForm").submit(function() {
-    if($("#msg").val().length === 0){
-      alert('error:please write your message');
-    }else{
-      var msg = htmlspecialchars($("#msg").val());
-      if (msg !== "") {
-        socket.emit("send", msg);
-        $("#msg").val("");
-      }
+    if(typeof(tabs.activeTab) !== 'undefined' && 'title' in tabs.activeTab && tabs.activeTab.title !== 'Status'){
+        if($("#msg").val().length === 0) return;
+        var msg = htmlspecialchars($("#msg").val());
+        if (msg !== "") {
+          if(tabs.activeTab.title !== ''){
+              var nameTab = tabs.activeTab.title;
+              var from = false;
+              for (var i = 0; i < tabs.items.length; i++) {
+                  if(tabs.getComponent(i).title == nameTab){
+                      from = true;
+                      exiTabId = i;
+                      break;
+                  }
+              }
+              if(from){
+                  if(myRoomName !== nameTab){
+                      var elTab = $(tabs.getComponent(exiTabId).body.dom.firstChild.firstChild.firstChild);
+                      elTab.append("<li><strong><span class='text-muted'>&lt;" + username + "&gt;</span></strong> " + msg + "</li>");
+                      tabs.getComponent(exiTabId).show();
+                  }
+                  msg = (typeof(myRoomName) !== 'undefined' && myRoomName === nameTab) ? msg : {to:nameTab,msg:msg};
+                  socket.emit("send",msg);
+                  $("#msg").val("");
+              }
+          }
+        }
     }
   });
 
@@ -244,19 +171,23 @@ $(document).ready(function() {
 
   $("#msg").keypress(function(e){
     if (e.which !== 13) {
-      if (typing === false && myRoomID !== null && $("#msg").is(":focus")) {
+      if(typing === false && myRoomID !== null && $("#msg").is(":focus")){
         typing = true;
         socket.emit("typing", true);
-      } else {
+      }else{
         clearTimeout(timeout);
         timeout = setTimeout(timeoutFunction, 5000);
       }
     }
   });
 
+  $("#msg").focus(function(e){
+    $(tabs.activeTab.tab.el.dom).removeClass('newMsg');
+  });
+
   socket.on("isTyping", function(data) {
     if (data.isTyping) {
-      if ($("#"+data.person+"").length === 0) {
+      if ($("#"+data.person+"").length === 0 && username !== data.person) {
         $("#updates").append("<li id='"+ data.person +"'><span class='text-muted'><small><i class='fa fa-keyboard-o'></i> " + data.person + " يكتُب. </small></li>");
         timeout = setTimeout(timeoutFunction, 5000);
       }
@@ -265,29 +196,7 @@ $(document).ready(function() {
     }
   });
 
-
-/*
-  $("#msg").keypress(function(){
-    if ($("#msg").is(":focus")) {
-      if (myRoomID !== null) {
-        socket.emit("isTyping");
-      }
-    } else {
-      $("#keyboard").remove();
-    }
-  });
-
-  socket.on("isTyping", function(data) {
-    if (data.typing) {
-      if ($("#keyboard").length === 0)
-        $("#updates").append("<li id='keyboard'><span class='text-muted'><i class='fa fa-keyboard-o'></i>" + data.person + " is typing.</li>");
-    } else {
-      socket.emit("clearMessage");
-      $("#keyboard").remove();
-    }
-    console.log(data);
-  });
-*/
+  $('#tab1 a[href="#peoples"]').tab('show');
 
   $("#showCreateRoom").click(function() {
     $("#createRoomForm").toggle();
@@ -296,7 +205,10 @@ $(document).ready(function() {
   $("#createRoomBtn").click(function() {
     var roomExists = false;
     if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test($("#createRoomName").val()) || $("#createRoomName").val().length === 0 || $("#createRoomName").val().length > 20){
-      alert('error:please enter a valid name');
+      $("#errors").empty();
+      $("#errors").show();
+      $("#errors").append("<b>خطأ: </b> من فضلك ادخل اسم صالح.<br /> أستخدم الاحرف الابجديه العربيه او الانجليزيه والارقام");
+      $("#errors").delay(10000).fadeOut(1000);
       return;
     }
     var roomName = htmlspecialchars($("#createRoomName").val());
@@ -306,8 +218,10 @@ $(document).ready(function() {
           $("#errors").empty();
           $("#errors").show();
           $("#errors").append("Room <i>" + roomName + "</i> already exists");
-        } else {      
+        } else {
         if (roomName.length > 0) { //also check for roomname
+          myRoomName = roomName;
+          addTab(myRoomName,'<ul name="msgs" class="list-unstyled"></ul>',true,'fa fa-users');
           socket.emit("createRoom", roomName);
           $("#errors").empty();
           $("#errors").hide();
@@ -319,7 +233,9 @@ $(document).ready(function() {
   $("#rooms").on('click', '.joinRoomBtn', function() {
     var roomName = $(this).siblings("span").text();
     var roomID = $(this).attr("id");
+    addTab(roomName,'<ul name="msgs" class="list-unstyled"></ul>',true,'fa fa-users');
     socket.emit("joinRoom", roomID);
+    myRoomName = roomName;
   });
 
   $("#rooms").on('click', '.removeRoomBtn', function() {
@@ -338,12 +254,13 @@ $(document).ready(function() {
   $("#disconnect").click(function() {
     var roomID = myRoomID;
     socket.emit("leaveRoom", roomID);
-    $("#createRoom").show();
+    location.href = "/";
   });
 
   $("#people").on('click', '.whisper', function() {
-    var name = $(this).siblings("span").text();
-    $("#msg").val("w:"+htmlspecialchars(name)+":");
+    var name = htmlspecialchars($(this).attr('name'));
+    addTab(name,'<ul name="msgs" class="list-unstyled"></ul>',true,'fa fa-user');
+    //$("#msg").val("w:"+name+":");
     $("#msg").focus();
   });
 /*
@@ -404,36 +321,9 @@ socket.on("exists", function(data) {
     toggleChatWindow();
 });
 
-socket.on("joined", function() {
-  $("#errors").hide();
-  if (navigator.geolocation) { //get lat lon of user
-    navigator.geolocation.getCurrentPosition(positionSuccess, positionError, { enableHighAccuracy: true });
-  } else {
-    $("#errors").show();
-    $("#errors").append("Your browser is ancient and it doesn't support GeoLocation.");
-  }
-  function positionError(e) {
-    console.log(e);
-  }
-
-  function positionSuccess(position) {
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-    //consult the yahoo service
-    $.ajax({
-      type: "GET",
-      url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.placefinder%20where%20text%3D%22"+lat+"%2C"+lon+"%22%20and%20gflags%3D%22R%22&format=json",
-      dataType: "json",
-       success: function(data) {
-        socket.emit("countryUpdate", {country: data.query.results.Result.countrycode});
-      }
-    });
-  }
-});
-
 socket.on("history", function(data) {
   if (data.length !== 0) {
-    $("#msgs").append("<li><strong><span class='text-warning'>Last 10 messages:</li>");
+    $("#msgs").append("<li><span class='text-warning'><b>اخر عشرة رسايل:</b></li>");
     $.each(data, function(data, msg) {
       $("#msgs").append("<li><span class='text-warning'>" + htmlspecialchars(msg) + "</span></li>");
     });
@@ -449,30 +339,34 @@ socket.on("history", function(data) {
   socket.on("update-people", function(data){
     //var peopleOnline = [];
     $("#people").empty();
-    $('#people').append("<li class='list-group-item active'>متواجديين الان <span class=\"badge\">"+parseInt(data.count)+"</span></li>");
+    $('#people').append("<li class='list-group-item active'>متواجديين الان <span class=\"badge\">"+(parseInt(data.count) - 1)+"</span></li>");
     $.each(data.people, function(a, obj) {
-      if (!("country" in obj)) {
-        html = "";
-      } else {
-        html = "<img class='flag flag-"+obj.country+"'/>";
+      if(obj.name !== username){
+        $('#people').append('<li class="list-group-item"><span>'+ htmlspecialchars(obj.name) +'</span> <a class="devic"><i class="fa fa-'+obj.device+'"></i></a><a href="#" class="whisper btn btn-xs btn-info" name="'+htmlspecialchars(obj.name)+'"><i class="fa fa-envelope-o"></i><div class="msgnm">رساله</div></a></li>')
       }
-      $('#people').append("<li class='list-group-item'><span>" + htmlspecialchars(obj.name) + "</span> <i class='fa fa-"+obj.device+"'></i> " + html + " <a href='#' class='whisper btn btn-xs'>خاص</a></li>");
-      //peopleOnline.push(obj.name);
     });
-
-    /*var whisper = $("#whisper").prop('checked');
-    if (whisper) {
-      $("#msg").typeahead({
-          local: peopleOnline
-      }).each(function() {
-         if ($(this).hasClass('input-lg'))
-              $(this).prev('.tt-hint').addClass('hint-lg');
-      });
-    }*/
+    if((parseInt(data.count) - 1) < 1){
+      $("#people").append("<li class=\"list-group-item\">لا يوجد أشخاص حتى الان</li>");
+    }
   });
 
   socket.on("chat", function(person, msg) {
-    $("#msgs").append("<li><strong>:<span class='text-success'>" + htmlspecialchars(person.name) + " </span></strong> " + htmlspecialchars(msg) + "</li>");
+    console.log(person);
+    var found = false;
+    for (var i = 0; i < tabs.items.length; i++) {
+        if(tabs.getComponent(i).title === myRoomName){
+            found = true;
+            exiTabId = i;
+            break;
+        }
+    }
+    if(found){
+        var elTab = $(tabs.getComponent(exiTabId).body.dom.firstChild.firstChild.firstChild);
+        elTab.append("<li><span class='text-muted'><b>&lt;" + htmlspecialchars(person) + "&gt;</b></span> " + htmlspecialchars_decode(msg) + "</li>");
+        if(person !== username){
+          $(tabs.getComponent(exiTabId).tab.el.dom).addClass('newMsg');
+        }
+    }
     //clear typing field
      $("#"+person.name+"").remove();
      clearTimeout(timeout);
@@ -480,13 +374,30 @@ socket.on("history", function(data) {
   });
 
   socket.on("whisper", function(person, msg) {
-    if (person.name === "You") {
-      s = "خاص";
-      person.name = "أنت";
-    } else {
-      s = "خاص معلك";
+    console.log("user:",person.name);
+    var found = false;
+    for (var i = 0; i < tabs.items.length; i++) {
+        if(tabs.getComponent(i).title === person.name){
+            found = true;
+            exiTabId = i;
+            break;
+        }
     }
-    $("#msgs").append("<li><strong><span class='text-muted'>" + htmlspecialchars(person.name) + "</span></strong> "+htmlspecialchars(s)+": " + htmlspecialchars(msg) + "</li>");
+    if(found){
+        var elTab = $(tabs.getComponent(exiTabId).body.dom.firstChild.firstChild.firstChild);
+        elTab.append("<li><strong><span class='text-muted'>&lt;" + htmlspecialchars(person.name) + "&gt;</span></strong> " + htmlspecialchars_decode(msg) + "</li>");
+        $(tabs.getComponent(exiTabId).tab.el.dom).addClass('newMsg');
+        //tabs.getComponent(exiTabId).show();
+    }else{
+        tabs.add({
+            closable: true,
+            html: "<ul name='mesg' class='list-unstyled'><li><strong><span class='text-muted'>&lt;" + htmlspecialchars(person.name) + "&gt;</span></strong> " + htmlspecialchars_decode(msg) + "</li></ul>",
+            iconCls: 'fa fa-user',
+            title: person.name
+        });
+        $(tabs.getComponent((tabs.items.length - 1)).tab.el.dom).addClass('newMsg');
+    }
+    //$("#msgs").append("<li><strong><span class='text-muted'>&lt;" + htmlspecialchars(person.name) + "&gt;</span></strong> " + htmlspecialchars_decode(msg) + "</li>");
   });
 
   socket.on("roomList", function(data) {
@@ -494,7 +405,13 @@ socket.on("history", function(data) {
     $("#rooms").append("<li class=\"list-group-item active\">قائمة الغُرف <span class=\"badge\">"+data.count+"</span></li>");
      if (!jQuery.isEmptyObject(data.rooms)) { 
       $.each(data.rooms, function(id, room) {
-        var html = "<button id="+id+" class='removeRoomBtn btn btn-default btn-xs'>حذف</button>" + " " + "<button id="+id+" class='joinRoomBtn btn btn-default btn-xs' >إنضمام</button>";
+        var rm = '';
+        var own = "<button id="+id+" class='joinRoomBtn btn btn-success btn-xs'><b>إنضمام</b><i class='fa fa-plus'></i></button>";
+        if(myRoomName === room.name){
+          rm = "<button id="+id+" class='removeRoomBtn btn btn-danger btn-xs'><i class='fa fa-trash'></i></button>";
+          own = "";
+        }
+        var html = rm + " " + own;
         $('#rooms').append("<li id="+id+" class=\"list-group-item\"><span>" + htmlspecialchars(room.name) + "</span> " + html + "</li>");
       });
     } else {
@@ -507,7 +424,7 @@ socket.on("history", function(data) {
   });
 
   socket.on("disconnect", function(){
-    $("#msgs").append("<li><strong><span class='text-warning'>الملقم غير متاح الان.</span></strong></li>");
+    $("#msgs").append("<li><span class='text-warning'><b>الملقم غير متاح الان.</b></span></li>");
     $("#msg").attr("disabled", "disabled");
     $("#send").attr("disabled", "disabled");
   });

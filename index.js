@@ -1,10 +1,10 @@
-var express = require('express')
-, app = express()
-, server = require('http').createServer(app)
-, io = require("socket.io").listen(server,{log:false})
-, uuid = require('node-uuid')
-, Room = require('./room.js')
-, _ = require('underscore')._;
+var express = require('express'),
+	app = express(),
+	server = require('http').createServer(app),
+	io = require("socket.io").listen(server,{log:false}), // {log:false} without logs
+	uuid = require('node-uuid'),
+	Room = require('./lib/room.js'),
+	_ = require('underscore')._;
 
 app.configure(function() {
 	app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 8080);
@@ -15,6 +15,7 @@ app.configure(function() {
 	app.use(express.static(__dirname + '/public'));
 	app.use('/components', express.static(__dirname + '/components'));
 	app.use('/js', express.static(__dirname + '/js'));
+	app.use('/extjs',express.static(__dirname + '/extjs'));
 	app.use('/icons', express.static(__dirname + '/icons'));
 	app.set('views', __dirname + '/views');
 	app.engine('html', require('ejs').renderFile);
@@ -33,6 +34,53 @@ var people = {};
 var rooms = {};
 var sockets = [];
 var chatHistory = {};
+
+function htmlspecialchars(string, quote_style, charset, double_encode) {
+  var optTemp = 0,
+    i = 0,
+    noquotes = false;
+  if (typeof quote_style === 'undefined' || quote_style === null) {
+    quote_style = 2;
+  }
+  string = string.toString();
+  if (double_encode !== false) { // Put this first to avoid double-encoding
+    string = string.replace(/&/g, '&amp;');
+  }
+  string = string.replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  var OPTS = {
+    'ENT_NOQUOTES': 0,
+    'ENT_HTML_QUOTE_SINGLE': 1,
+    'ENT_HTML_QUOTE_DOUBLE': 2,
+    'ENT_COMPAT': 2,
+    'ENT_QUOTES': 3,
+    'ENT_IGNORE': 4
+  };
+  if (quote_style === 0) {
+    noquotes = true;
+  }
+  if (typeof quote_style !== 'number') { // Allow for a single string or an array of string flags
+    quote_style = [].concat(quote_style);
+    for (i = 0; i < quote_style.length; i++) {
+      // Resolve string input to bitwise e.g. 'ENT_IGNORE' becomes 4
+      if (OPTS[quote_style[i]] === 0) {
+        noquotes = true;
+      } else if (OPTS[quote_style[i]]) {
+        optTemp = optTemp | OPTS[quote_style[i]];
+      }
+    }
+    quote_style = optTemp;
+  }
+  if (quote_style & OPTS.ENT_HTML_QUOTE_SINGLE) {
+    string = string.replace(/'/g, '&#039;');
+  }
+  if (!noquotes) {
+    string = string.replace(/"/g, '&quot;');
+  }
+
+  return string;
+}
 
 function purge(s, action) {
 	/*
@@ -205,7 +253,35 @@ io.sockets.on("connection", function (socket) {
 			sizeRooms = _.size(rooms);
 			io.sockets.emit("update-people", {people: people, count: sizePeople});
 			socket.emit("roomList", {rooms: rooms, count: sizeRooms});
-			socket.emit("joined"); //extra emit for GeoLocation
+			//socket.emit("joined"); //extra emit for GeoLocation
+			/* in client
+			socket.on("joined", function() {
+			  $("#errors").hide();
+			  if (navigator.geolocation) { //get lat lon of user
+			    navigator.geolocation.getCurrentPosition(positionSuccess, positionError, { enableHighAccuracy: true });
+			  } else {
+			    $("#errors").show();
+			    $("#errors").append("Your browser is ancient and it doesn't support GeoLocation.");
+			  }
+			  function positionError(e) {
+			    console.log(e);
+			  }
+
+			  function positionSuccess(position) {
+			    var lat = position.coords.latitude;
+			    var lon = position.coords.longitude;
+			    //consult the yahoo service
+			    $.ajax({
+			      type: "GET",
+			      url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.placefinder%20where%20text%3D%22"+lat+"%2C"+lon+"%22%20and%20gflags%3D%22R%22&format=json",
+			      dataType: "json",
+			       success: function(data) {
+			        socket.emit("countryUpdate", {country: data.query.results.Result.countrycode});
+			      }
+			    });
+			  }
+			});
+			*/
 			sockets.push(socket);
 		}
 	});
@@ -228,20 +304,13 @@ io.sockets.on("connection", function (socket) {
 	});
 	
 	socket.on("send", function(msg) {
-		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(msg) || msg.length === 0 && !/^[w]:.*:/.test(msg)){
-	      return;
-	    }
 		//process.exit(1);
-		var re = /^[w]:.*:/;
-		var whisper = re.test(msg);
-		var whisperStr = msg.split(":");
 		var found = false;
-		if (whisper) {
-			var whisperTo = whisperStr[1];
+		if (typeof(msg) === 'object' && msg.to !== undefined) {
 			var keys = Object.keys(people);
 			if (keys.length != 0) {
 				for (var i = 0; i<keys.length; i++) {
-					if (people[keys[i]].name === whisperTo) {
+					if (people[keys[i]].name === msg.to) {
 						var whisperId = keys[i];
 						found = true;
 						if (socket.id === whisperId) { //can't whisper to ourselves
@@ -252,16 +321,15 @@ io.sockets.on("connection", function (socket) {
 				}
 			}
 			if (found && socket.id !== whisperId) {
-				var whisperTo = whisperStr[1];
-				var whisperMsg = whisperStr[2];
-				socket.emit("whisper", {name: "You"}, whisperMsg);
+				var whisperMsg = htmlspecialchars(msg.msg);
+				//socket.emit("whisper", {name: "You",with:whisperTo}, whisperMsg);
 				io.sockets.socket(whisperId).emit("whisper", people[socket.id], whisperMsg);
 			} else {
-				socket.emit("update",whisperTo + "لا يمكن العثور على ");
+				socket.emit("update",msg.to + "لا يمكن العثور على ");
 			}
 		} else {
 			if (io.sockets.manager.roomClients[socket.id]['/'+socket.room] !== undefined ) {
-				io.sockets.in(socket.room).emit("chat", people[socket.id], msg);
+				io.sockets.in(socket.room).emit("chat", people[socket.id].name, msg);
 				socket.emit("isTyping", false);
 				if (_.size(chatHistory[socket.room]) > 10) {
 					chatHistory[socket.room].splice(0,1);
@@ -282,12 +350,10 @@ io.sockets.on("connection", function (socket) {
 
 	//Room functions
 	socket.on("createRoom", function(name) {
-		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20){
-	      return;
-	    }
-		if (people[socket.id].inroom && people[socket.id].inroom !== null && people[socket.id].inroom !== '') {
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20) return;
+		if(people[socket.id].inroom && people[socket.id].inroom !== null && people[socket.id].inroom !== ''){
 			socket.emit("update", "انتَ داخل غرفه. من فضلك اتركها لتتمكن من إنشاء واحده جديدة");
-		} else if (!people[socket.id].owns) {
+		}else if (!people[socket.id].owns){
 			var id = uuid.v4();
 			var room = new Room(name, id, socket.id);
 			rooms[id] = room;
@@ -302,7 +368,7 @@ io.sockets.on("connection", function (socket) {
 			socket.emit("update", "." + room.name + " اهلاً بك فى");
 			socket.emit("sendRoomID", {id: id});
 			chatHistory[socket.room] = [];
-		} else {
+		}else{
 			socket.emit("update", "لقد قمت بالفعل بإنشاء الغرفة.");
 		}
 	});

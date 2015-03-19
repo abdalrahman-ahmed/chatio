@@ -11,8 +11,9 @@ body, #main-chat-screen {
 #conversation {
   font-size: 18px;
   margin: 0px;
+  padding: 0px;
   height: 300px;
-  overflow: auto;
+  overflow: hidden;
 }
 .final {
   font-color: #000;
@@ -36,12 +37,18 @@ li.list-group-item.active {
 li.list-group-item span {
     float: right;
 }
-#rooms li.list-group-item {
-  text-align: right;
+#rooms li.list-group-item,
+#people li.list-group-item {
+  text-align: right; 
 }
 #login-screen,
 #errors {
     direction: rtl;
+    text-align: center;
+    border-radius: 0;
+}
+input#send {
+  width: 15%;
 }
 .modal-content {
     text-align: right;
@@ -78,6 +85,7 @@ form#chatForm {
 }
 ul#msgs li strong {
   float: right;
+  margin: 0 0 0 8px;
 }
 ul#msgs li {
   text-align: right;
@@ -88,13 +96,102 @@ ul.dropdown-menu {
 ul#people li.list-group-item.active, 
 ul#rooms li.list-group-item.active {
     color: #333;   
-    background-color: transparent;   
+    background-color: #fff;   
     border-color: #ddd;
+    border-radius: 0;
 }
 
 ul#people li.list-group-item.active > .badge,
 ul#rooms li.list-group-item.active > .badge {
-    background-color: #eee;
-    border: 1px solid #d5d5d5;
-    color: #333;
+  border-right: 1px solid #d5d5d5;
+  color: #333;
+  position: absolute;
+  left: 0;
+  width: auto;
+  padding: 0 18px;
+  border-radius: 4px 0 0 0;
+  height: 100%;
+  top: 0;
+  text-align: center;
+  line-height: 40px;
+}
+button[id].joinRoomBtn b {
+  margin: 0 4px 0 0;
+  vertical-align: text-bottom;
+}
+#tab1.nav-tabs{
+  border-bottom: none;
+}
+.nav-tabs > li > a[href] i {
+  margin: 0 4px 0 0;
+}
+.dropdown-menu > li > a[name] i {
+  margin: 0 0 0 4px;
+}
+ul#tab1.nav-tabs > li.active > a {
+  border-bottom: 1px solid #fff;
+  z-index: 3;
+}
+ul#people li a.whisper{
+  vertical-align: bottom;
+  color: #fff;
+  margin: 0 6px 0 0;
+}
+ul#people li a.whisper .msgnm {
+  display: inline-block;
+  margin: 0 0 0 6px;
+}
+ul#people li a.devic {
+  float: left;
+  line-height: 24px;
+  background-color: #449d44;
+  color: #fff;
+  border-radius: 100%;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+}
+li.welcome-msg {
+    text-align: center;
+    padding: 8px 8px;
+}
+
+li.welcome-msg:after {
+    content: "مرحباً";
+    margin: 0 4px;
+}
+
+li.welcome-msg:before {
+    content: attr(name);
+}
+#chatForm .form-group {
+  width: 82%;
+}
+input#msg {
+  width: 100%;
+}
+.x-tab-default-top.newMsg {
+  background-color:#EC971F;
+  border-bottom-style:solid;
+  border-bottom-color:transparent;
+  border-bottom-width:0px;
+}
+div#coole {
+    /*text-align: center;
+    width: 100%;*/
+}
+
+#tab1.nav-tabs > li:first-child {
+    float: left;
+}
+#tab1.nav-tabs > li {
+  float: right;
+}
+#tab1.nav-tabs > li:first-child a {
+    margin: 0 2px 0 0;
+}
+#tab1.nav-tabs > li > a,
+#tab1.nav-tabs > li.active > a {
+  margin: 0 0 0 2px;
+  padding: 8px;
 }
