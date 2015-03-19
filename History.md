@@ -4,7 +4,7 @@
  * remove:
    - flag users
  * change:
-   rename and move file `./room.js` -> `./lib/server.js`
+   move file `./room.js` -> `./lib/room.js`
  * new:
    - open private chat in new tab
    - open room chat in new tab
