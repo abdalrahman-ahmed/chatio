@@ -96,7 +96,7 @@ $(document).ready(function() {
   //enter screen
   $("#nameForm").submit(function(){
     var name = ($("#name").val().trim());
-    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 15){
+    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>\?"'_\\]+)/.test(name) || name.length === 0 || name.length > 15){
       alert('error: Please Enter a valid name');
       return;
     }
