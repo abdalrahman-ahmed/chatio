@@ -96,7 +96,7 @@ $(document).ready(function() {
   //enter screen
   $("#nameForm").submit(function(){
     var name = ($("#name").val().trim());
-    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>\?"'_\\]+)/.test(name) || name.length === 0 || name.length > 15){
+    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 15){
       alert('error: Please Enter a valid name');
       return;
     }
@@ -191,8 +191,8 @@ $(document).ready(function() {
         $("#updates").append("<li id='"+ data.person +"'><span class='text-muted'><small><i class='fa fa-keyboard-o'></i> " + data.person + " يكتُب. </small></li>");
         timeout = setTimeout(timeoutFunction, 5000);
       }
-    } else {
-      $("#"+data.person+"").remove();
+    }else{
+      $("#"+data.person).remove();
     }
   });
 
@@ -204,7 +204,7 @@ $(document).ready(function() {
 
   $("#createRoomBtn").click(function() {
     var roomExists = false;
-    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test($("#createRoomName").val()) || $("#createRoomName").val().length === 0 || $("#createRoomName").val().length > 20){
+    if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>\?"'_\\]+)/.test($("#createRoomName").val()) || $("#createRoomName").val().length === 0 || $("#createRoomName").val().length > 20){
       $("#errors").empty();
       $("#errors").show();
       $("#errors").append("<b>خطأ: </b> من فضلك ادخل اسم صالح.<br /> أستخدم الاحرف الابجديه العربيه او الانجليزيه والارقام");

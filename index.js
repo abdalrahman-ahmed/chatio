@@ -225,9 +225,7 @@ function purge(s, action) {
 io.sockets.on("connection", function (socket) {
 
 	socket.on("joinserver", function(name, device) {
-		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20){
-	      return;
-	    }
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>\?"'_\\]+)/.test(name) || name.length === 0 || name.length > 20 || name.length < 4) return;
 		var exists = false;
 		var ownerRoomID = inRoomID = null;
 
@@ -287,16 +285,17 @@ io.sockets.on("connection", function (socket) {
 	});
 
 	socket.on("getOnlinePeople", function(fn) {
-                fn({people: people});
-        });
-
-	socket.on("countryUpdate", function(data) { //we know which country the user is from
+    	fn({people: people});
+    });
+        
+	//we know which country the user is from
+	/*socket.on("countryUpdate", function(data) { 
 		if(typeof(data) === 'object' && 'country' in data && data.country !== null || data.country.length !== 0){
 			country = data.country.toLowerCase();
 			people[socket.id].country = country;
 			io.sockets.emit("update-people", {people: people, count: sizePeople});
 		}
-	});
+	});*/
 
 	socket.on("typing", function(data) {
 		if (typeof people[socket.id] !== "undefined")
@@ -306,55 +305,56 @@ io.sockets.on("connection", function (socket) {
 	socket.on("send", function(msg) {
 		//process.exit(1);
 		var found = false;
-		if (typeof(msg) === 'object' && msg.to !== undefined) {
+		if (typeof(msg) === 'object' && msg.to !== undefined && (msg.to.length !== 0 && msg.to.length > 4 && msg.to.length < 21)) {
 			var keys = Object.keys(people);
 			if (keys.length != 0) {
 				for (var i = 0; i<keys.length; i++) {
-					if (people[keys[i]].name === msg.to) {
+					if(people[keys[i]].name === htmlspecialchars((msg.to).trim())){
 						var whisperId = keys[i];
 						found = true;
-						if (socket.id === whisperId) { //can't whisper to ourselves
+						if(socket.id === whisperId){ //can't whisper to ourselves
 							socket.emit("update", "لا يمكنك محادثة نفسك");
 						}
 						break;
 					} 
 				}
 			}
-			if (found && socket.id !== whisperId) {
+			if(found && socket.id !== whisperId){
 				var whisperMsg = htmlspecialchars(msg.msg);
 				//socket.emit("whisper", {name: "You",with:whisperTo}, whisperMsg);
 				io.sockets.socket(whisperId).emit("whisper", people[socket.id], whisperMsg);
-			} else {
-				socket.emit("update",msg.to + "لا يمكن العثور على ");
+			}else{
+				socket.emit("update",htmlspecialchars(msg.to) + "لا يمكن العثور على ");
 			}
-		} else {
-			if (io.sockets.manager.roomClients[socket.id]['/'+socket.room] !== undefined ) {
-				io.sockets.in(socket.room).emit("chat", people[socket.id].name, msg);
+		}else{
+			if(io.sockets.manager.roomClients[socket.id]['/'+socket.room] !== undefined ){
+				io.sockets.in(socket.room).emit("chat", people[socket.id].name, htmlspecialchars(msg));
 				socket.emit("isTyping", false);
-				if (_.size(chatHistory[socket.room]) > 10) {
+				if(_.size(chatHistory[socket.room]) > 10){
 					chatHistory[socket.room].splice(0,1);
-				} else {
-					chatHistory[socket.room].push(people[socket.id].name + ": " + msg);
+				}else{
+					chatHistory[socket.room].push(people[socket.id].name + ": " + htmlspecialchars(msg));
 				}
-		    	} else {
+		    }else{
 				socket.emit("update", "يرجى الاتصال بغرفة.");
-		    	}
+		    }
 		}
 	});
 
-	socket.on("disconnect", function() {
-		if (typeof people[socket.id] !== "undefined") { //this handles the refresh of the name screen
+	socket.on("disconnect", function(){
+		if(typeof people[socket.id] !== "undefined"){ //this handles the refresh of the name screen
 			purge(socket, "disconnect");
 		}
 	});
 
 	//Room functions
-	socket.on("createRoom", function(name) {
-		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>"'_\\]+)/.test(name) || name.length === 0 || name.length > 20) return;
-		if(people[socket.id].inroom && people[socket.id].inroom !== null && people[socket.id].inroom !== ''){
+	socket.on("createRoom", function(name){
+		if(/([\+-\.,!@#\$%\^&\*\(\);\/\|<>\?"'_\\]+)/.test(name) || name.length === 0 || name.length > 20 || name.length < 4) return;
+		if(typeof(people[socket.id]) === 'object' && (('inroom' in people[socket.id]) && people[socket.id].inroom)){
 			socket.emit("update", "انتَ داخل غرفه. من فضلك اتركها لتتمكن من إنشاء واحده جديدة");
-		}else if (!people[socket.id].owns){
+		}else if(typeof(people[socket.id]) === 'object' && (('owns' in people[socket.id]) && !people[socket.id].owns)){
 			var id = uuid.v4();
+			name = htmlspecialchars(name);
 			var room = new Room(name, id, socket.id);
 			rooms[id] = room;
 			sizeRooms = _.size(rooms);
@@ -373,36 +373,36 @@ io.sockets.on("connection", function (socket) {
 		}
 	});
 
-	socket.on("check", function(name, fn) {
+	socket.on("check", function(name, fn){
+		name = htmlspecialchars(name);
 		var match = false;
 		_.find(rooms, function(key,value) {
-			if (key.name === name)
-				return match = true;
+			if(key.name === name) return match = true;
 		});
 		fn({result: match});
 	});
 
 	socket.on("removeRoom", function(id) {
-		 var room = rooms[id];
-		 if (socket.id === room.owner) {
+		var room = rooms[id];
+		if(socket.id === room.owner){
 			purge(socket, "removeRoom");
-		} else {
-                	socket.emit("update", "فقط من إنشأ هذه الغرفه يستطيع إزالتها.");
+		}else{
+            socket.emit("update", "فقط من إنشأ هذه الغرفه يستطيع إزالتها.");
 		}
 	});
 
-	socket.on("joinRoom", function(id) {
-		if (typeof people[socket.id] !== "undefined") {
+	socket.on("joinRoom", function(id){
+		if(typeof people[socket.id] !== "undefined"){
 			var room = rooms[id];
-			if (socket.id === room.owner) {
+			if(socket.id === room.owner){
 				socket.emit("update", "انتَ انشأت هذه الغرفه وانتَ بالفعل متواجد بها");
-			} else {
-				if (_.contains((room.people), socket.id)) {
+			}else{
+				if(_.contains((room.people), socket.id)){
 					socket.emit("update", "انتَ بالفعل متواجد بالغرفه.");
-				} else {
-					if (people[socket.id].inroom !== null) {
-				    		socket.emit("update", "منفضلك غادر هذه اولاً للنتقال لغرفة اخرى ," + "("+rooms[people[socket.id].inroom].name+")" + "انتَ بالفعل بالغرفة ");
-				    	} else {
+				}else{
+					if(people[socket.id].inroom !== null){
+				   		socket.emit("update", "منفضلك غادر هذه اولاً للنتقال لغرفة اخرى ," + "("+rooms[people[socket.id].inroom].name+")" + "انتَ بالفعل بالغرفة ");
+				    }else{
 						room.addPerson(socket.id);
 						people[socket.id].inroom = id;
 						socket.room = room.name;
@@ -412,20 +412,19 @@ io.sockets.on("connection", function (socket) {
 						socket.emit("update", room.name + " مرحباً بك في ");
 						socket.emit("sendRoomID", {id: id});
 						var keys = _.keys(chatHistory);
-						if (_.contains(keys, socket.room)) {
+						if(_.contains(keys, socket.room)){
 							socket.emit("history", chatHistory[socket.room]);
 						}
 					}
 				}
 			}
-		} else {
+		}else{
 			socket.emit("update", "الرجاء إدخال اسم صالح اولاً");
 		}
 	});
 
 	socket.on("leaveRoom", function(id) {
 		var room = rooms[id];
-		if (room)
-			purge(socket, "leaveRoom");
+		if(room) purge(socket, "leaveRoom");
 	});
 });
