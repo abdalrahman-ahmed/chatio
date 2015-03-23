@@ -24,21 +24,34 @@ Chat.IO app using node.js and socket.io
 ## Setup and configuration
 
 Make sure that you update <strong>index.js</strong>:
-<pre>server.listen(app.get('port'), function(){
+```js
+server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
-});</pre>
+});
+```
+
 and add your own IP address/hostname if required, i.e.:
-<pre>server.listen(app.get('port'), "192.168.1.6", function(){
+```js
+server.listen(app.get('port'), "192.168.1.6", function(){
   console.log('Express server listening on port ' + app.get('port'));
-});</pre>
+});
+```
 
-(the port is defined in the <code>app.set('port', process.env.PORT || 3000);</code> section.)
+(the port is defined in the `app.set('port', process.env.PORT || 3000);` section.)
 
-Please also update <strong>public/js/client.js</strong>:
-<pre>var socket = io.connect("192.168.1.6:3000");</pre>
-with the right IP address/hostname.
+Please also update <strong>public/js/client.js</strong>: `var socket = io.connect("192.168.1.6:3000");` with the right IP address/hostname.
 
-To install <code>npm install && bower install</code> and to launch run <code>npm start</code>.
+### Install 
+
+open the terminal and type: 
+```sh
+$ npm install && bower install
+```
+and to launch run 
+```sh 
+$ npm start
+```
+### Example
 
 Now Visit [Chat.IO DEMO](https://chatio-alcrazy-2.c9.io/)
 
